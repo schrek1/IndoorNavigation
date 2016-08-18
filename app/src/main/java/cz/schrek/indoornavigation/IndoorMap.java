@@ -3,15 +3,19 @@ package cz.schrek.indoornavigation;
 import android.content.Context;
 import android.graphics.*;
 import android.util.AttributeSet;
+import android.util.Log;
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 
 /**
+ * Trida obsluhujici vykreslovani na mape
+ * <p>
+ * <p>
  * Created by ondra on 18. 8. 2016.
  */
 public class IndoorMap extends SubsamplingScaleImageView {
 
-    private PointF sPin;
-    private Bitmap pin;
+    private PositionPoint positionPoint;
+    private DistanceConverter distConv;
 
     public IndoorMap(Context context) {
         super(context);
@@ -19,25 +23,16 @@ public class IndoorMap extends SubsamplingScaleImageView {
 
     public IndoorMap(Context context, AttributeSet attr) {
         super(context, attr);
-        initialise();
     }
 
-    private void initialise() {
-        float density = getResources().getDisplayMetrics().densityDpi;
-        pin = BitmapFactory.decodeResource(this.getResources(), R.drawable.pushpin_blue);
-        float w = (density / 420f) * pin.getWidth() * 0.5f;
-        float h = (density / 420f) * pin.getHeight() * 0.5f;
-        pin = Bitmap.createScaledBitmap(pin, (int) w, (int) h, true);
-    }
 
-    public void setPin(PointF sPin) {
-        this.sPin = sPin;
-        initialise();
+    public void setPosition(PositionPoint positionPoint) {
+        this.positionPoint = positionPoint;
         invalidate();
     }
 
-    public PointF getPin() {
-        return this.sPin;
+    public PointF getPosition() {
+        return this.positionPoint;
     }
 
     @Override
@@ -52,12 +47,25 @@ public class IndoorMap extends SubsamplingScaleImageView {
         Paint paint = new Paint();
         paint.setAntiAlias(true);
 
-        if (sPin != null && pin != null) {
-            PointF vPin = sourceToViewCoord(sPin);
-            float vX = vPin.x - (pin.getWidth() / 2);
-            float vY = vPin.y - pin.getHeight();
-            canvas.drawBitmap(pin, vX, vY, paint);
+        if (positionPoint != null) {
+
+
+
+            float vX = positionPoint.getRelPosX();
+            float vY = positionPoint.getRelPosY();
+
+
+            DistanceConverter dc = new DistanceConverter(getContext());
+            float[] loc = dc.relToAbs(vX, vY, this);
+            PointF pp = new PointF(loc[0], loc[1]);
+            PointF vPin = sourceToViewCoord(pp);
+
+            canvas.drawBitmap(positionPoint.getIcon(), positionPoint.getIconPosX(loc[0]), positionPoint.getIconPosY(loc[1]), paint);
+
+
         }
 
     }
+
+
 }
