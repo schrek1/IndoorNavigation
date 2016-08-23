@@ -7,38 +7,23 @@
         android:padding="10dp"
         tools:context="cz.schrek.indoornavigation.MainActivity">
 
+    <com.qozix.tileview.TileView android:id="@+id/tile"
+                                 android:layout_width="match_parent"
+                                 android:layout_height="match_parent"
+    >
 
+    </com.qozix.tileview.TileView>
 
-    <cz.schrek.indoornavigation.IndoorMap
+    <RelativeLayout android:id="@+id/container"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+    >
+        <Button android:id="@+id/center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="center"
+        />
 
-            android:id="@+id/imageView"
-            android:layout_alignParentTop="true"
-            android:layout_width="match_parent"
-            android:layout_height="400dp"
-            android:background="#b7b7b7"
-            android:layout_alignParentStart="true"
-    />
-
-    <Button android:id="@+id/rotateBut"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="rotate"
-            android:layout_below="@id/imageView"
-    />
-
-    <Button android:id="@+id/pointBut"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="reset point"
-            android:layout_toRightOf="@id/rotateBut"
-            android:layout_below="@id/imageView"
-    />
-
-    <TextView
-            android:id="@+id/label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/rotateBut"
-    />
+    </RelativeLayout>
 
 </RelativeLayout>
