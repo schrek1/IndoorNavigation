@@ -24,6 +24,27 @@
                 android:text="center"
         />
 
+        <Button android:id="@+id/distPlus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="dist ++"
+                android:layout_toRightOf="@id/center"
+        />
+        <Button android:id="@+id/distMinus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="dist --"
+                android:layout_toRightOf="@id/distPlus"
+        />
+        <TextView android:id="@+id/label"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_alignParentBottom="true"
+        />
+
     </RelativeLayout>
+
+
+
 
 </RelativeLayout>

@@ -5,44 +5,99 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
+import android.widget.TextView;
 import com.qozix.tileview.TileView;
 
-public class MainActivity extends AppCompatActivity {
+import java.util.ArrayList;
+import java.util.List;
+
+public class MainActivity extends AppCompatActivity implements BeaconReciever {
 
     private Button centerBut;
     private TileView tile;
+    private TextView label;
+    private DistanceConverter dc;
+    private Button distPlus, distMinus;
+
+    private List<Beacon> beacons = new ArrayList<>();
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
         centerBut = (Button) findViewById(R.id.center);
         tile = (TileView) findViewById(R.id.tile);
+        dc = new DistanceConverter(getApplicationContext());
+        label = (TextView) findViewById(R.id.label);
+        distMinus = (Button) findViewById(R.id.distMinus);
+        distPlus = (Button) findViewById(R.id.distPlus);
 
 
+        distMinus.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Beacon selected = null;
+                for (Beacon beacon : beacons) {
+                    if (beacon.isSelected()) {
+                        selected = beacon;
+                        break;
+                    }
+                }
+                if (selected != null) {
+                    float dist = selected.getDistance() - 10;
+                    selected.setDistance((dist > 0) ? dist : 0);
+                }
+            }
+        });
+
+        distPlus.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Beacon selected = null;
+                for (Beacon beacon : beacons) {
+                    if (beacon.isSelected()) {
+                        selected = beacon;
+                        break;
+                    }
+                }
+                if (selected != null) {
+                    float dist = selected.getDistance() + 10;
+                    selected.setDistance(dist);
+                }
+            }
+        });
+
+        beacons.add(new Beacon(getApplicationContext(), "24:6F", 10, 20, this));
+        beacons.add(new Beacon(getApplicationContext(), "33:45", 10, 390, this));
+        beacons.add(new Beacon(getApplicationContext(), "24:57", 690, 10, this));
+        beacons.add(new Beacon(getApplicationContext(), "34:03", 690, 390, this));
+        beacons.add(new Beacon(getApplicationContext(), "29:03", 350, 200, this));
+
+
+        tile.setPadding(0, 0, 0, 0);
         tile.setSize(827, 486);
         tile.addDetailLevel(1f, "tile-%d_%d.png");
         tile.setShouldRenderWhilePanning(true);
 
 
-        centerBut.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                tile.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        ImageView img = new ImageView(getApplicationContext());
-                        img.setImageResource(R.drawable.pushpin_blue);
-//                        double x =
-                        tile.addMarker(img, 0, 0, null, null);
-                    }
-                });
-            }
-        });
+        for (Beacon beacon : beacons) {
+            tile.addMarker(beacon, 0, 0, null, null);
+        }
 
 
+    }
+
+    @Override
+    public void recieveBeaconInfo(String info) {
+        label.setText(info);
+    }
+
+    @Override
+    public void unselectAllBeacon() {
+        for (Beacon beacon : beacons) {
+            beacon.setSelected(false);
+        }
     }
 }
