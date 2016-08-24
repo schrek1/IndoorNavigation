@@ -3,6 +3,7 @@ package cz.schrek.indoornavigation;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -11,7 +12,7 @@ import com.qozix.tileview.TileView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements BeaconReciever {
+public class MainActivity extends AppCompatActivity implements BeaconReciever, PositionReceiver {
 
     private Button centerBut;
     private TileView tile;
@@ -20,6 +21,7 @@ public class MainActivity extends AppCompatActivity implements BeaconReciever {
     private Button distPlus, distMinus;
 
     private List<Beacon> beacons = new ArrayList<>();
+    private PositionIndicator position;
 
 
     @Override
@@ -69,11 +71,12 @@ public class MainActivity extends AppCompatActivity implements BeaconReciever {
             }
         });
 
+
         beacons.add(new Beacon(getApplicationContext(), "24:6F", 10, 20, this));
         beacons.add(new Beacon(getApplicationContext(), "33:45", 10, 390, this));
         beacons.add(new Beacon(getApplicationContext(), "24:57", 690, 10, this));
         beacons.add(new Beacon(getApplicationContext(), "34:03", 690, 390, this));
-        beacons.add(new Beacon(getApplicationContext(), "29:03", 350, 200, this));
+        beacons.add(new Beacon(getApplicationContext(), "29:03", 350, 390, this));
 
 
         tile.setPadding(0, 0, 0, 0);
@@ -86,6 +89,9 @@ public class MainActivity extends AppCompatActivity implements BeaconReciever {
             tile.addMarker(beacon, 0, 0, null, null);
         }
 
+
+        position = new PositionIndicator(this, 350, 200, this);
+        tile.addMarker(position, 0, 0, null, null);
 
     }
 
