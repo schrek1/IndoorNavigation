@@ -52,6 +52,7 @@ public class PositionIndicator extends MapElement {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         canvas.drawBitmap(pin, pixPosX, pixPosY, null);
+        activity.recievePositonInfo(toString());
     }
 
     @Override
@@ -61,5 +62,15 @@ public class PositionIndicator extends MapElement {
             pixPosX = val[0] - (pin.getWidth() / 2);
             pixPosY = val[1] - pin.getHeight();
         }
+    }
+
+    @Override
+    public String toString() {
+        return "PositionIndicator{" + "\n" +
+                "\n, pixPosX=" + pixPosX + " px" +
+                "\n, pixPosY=" + pixPosY + " px" +
+                "\n, roomPosX=" + roomPosX + " cm" +
+                "\n, roomPosY=" + roomPosY + " cm" +
+                "}";
     }
 }

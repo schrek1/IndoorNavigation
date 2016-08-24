@@ -14,9 +14,10 @@ import java.util.Random;
 /**
  * Created by ondra on 23. 8. 2016.
  */
-public class Beacon extends MapElement implements View.OnClickListener {
-    private final float CIRCLE_SIZE = 20;
-    private final float CIRCLE_STROKE = 3;
+public class Beacon extends MapElement{
+    private static final int TOUCH_AREA = 30;
+    private static final float CIRCLE_SIZE = 20;
+    private static final float CIRCLE_STROKE = 3;
     private final int CIRCLE_COLOR;
 
 
@@ -45,11 +46,18 @@ public class Beacon extends MapElement implements View.OnClickListener {
         canvas.drawCircle(pixPosX, pixPosY, CIRCLE_SIZE, style);
 
         // draw radius around beacon
-        style = new Paint();
-        style.setColor(CIRCLE_COLOR);
-        style.setStyle(Paint.Style.STROKE);
-        style.setStrokeWidth(CIRCLE_STROKE);
-        canvas.drawCircle(pixPosX, pixPosY, distance, style);
+        if (distance != 0) {
+            style = new Paint();
+            style.setColor(CIRCLE_COLOR);
+            style.setStyle(Paint.Style.STROKE);
+            style.setStrokeWidth(CIRCLE_STROKE);
+            canvas.drawCircle(pixPosX, pixPosY, distance + CIRCLE_SIZE, style);
+        }
+
+        if(selected){
+            activity.recieveBeaconInfo(toString());
+        }
+
     }
 
 
@@ -58,8 +66,8 @@ public class Beacon extends MapElement implements View.OnClickListener {
         float touched_x = event.getX();
         float touched_y = event.getY();
 
-        if (touched_x > (pixPosX - 30) && touched_x < (pixPosX + 30)) {
-            if (touched_y > (pixPosY - 30) && touched_y < (pixPosY + 30)) {
+        if (touched_x > (pixPosX - TOUCH_AREA) && touched_x < (pixPosX + TOUCH_AREA)) {
+            if (touched_y > (pixPosY - TOUCH_AREA) && touched_y < (pixPosY + TOUCH_AREA)) {
                 activity.recieveBeaconInfo(toString());
                 activity.unselectAllBeacon();
                 setSelected(true);
@@ -68,12 +76,6 @@ public class Beacon extends MapElement implements View.OnClickListener {
         }
         return false;
     }
-
-    @Override
-    public void onClick(View view) {
-        Toast.makeText(this.context, roomPosX + "", Toast.LENGTH_SHORT).show();
-    }
-
 
     public void setDistance(float distance) {
         this.distance = distance;
@@ -87,11 +89,11 @@ public class Beacon extends MapElement implements View.OnClickListener {
     @Override
     public String toString() {
         return "Beacon{\n" +
-                "id='" + id + '\'' +
-                "\n, pixPosX=" + pixPosX +
-                "\n, pixPosY=" + pixPosY +
-                "\n, roomPosX=" + roomPosX +
-                "\n, roomPosY=" + roomPosY +
+                "id='" + id + '\'' + ", dist= " + distance +
+                "\n, pixPosX=" + pixPosX + " px" +
+                "\n, pixPosY=" + pixPosY + " px" +
+                "\n, roomPosX=" + roomPosX + "cm" +
+                "\n, roomPosY=" + roomPosY + " cm" +
                 '}';
     }
 

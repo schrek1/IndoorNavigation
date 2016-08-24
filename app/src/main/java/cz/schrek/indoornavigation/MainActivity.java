@@ -3,7 +3,6 @@ package cz.schrek.indoornavigation;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -16,7 +15,8 @@ public class MainActivity extends AppCompatActivity implements BeaconReciever, P
 
     private Button centerBut;
     private TileView tile;
-    private TextView label;
+    private TextView beaconLab;
+    private TextView positionLab;
     private DistanceConverter dc;
     private Button distPlus, distMinus;
 
@@ -32,9 +32,18 @@ public class MainActivity extends AppCompatActivity implements BeaconReciever, P
         centerBut = (Button) findViewById(R.id.center);
         tile = (TileView) findViewById(R.id.tile);
         dc = new DistanceConverter(getApplicationContext());
-        label = (TextView) findViewById(R.id.label);
+        beaconLab = (TextView) findViewById(R.id.beaconLab);
+        positionLab = (TextView) findViewById(R.id.positonLab);
         distMinus = (Button) findViewById(R.id.distMinus);
         distPlus = (Button) findViewById(R.id.distPlus);
+
+        centerBut.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                float[] val = dc.cmToPx(350, 200);
+                tile.slideToAndCenter(val[0], val[1]);
+            }
+        });
 
 
         distMinus.setOnClickListener(new View.OnClickListener() {
@@ -97,7 +106,7 @@ public class MainActivity extends AppCompatActivity implements BeaconReciever, P
 
     @Override
     public void recieveBeaconInfo(String info) {
-        label.setText(info);
+        beaconLab.setText(info);
     }
 
     @Override
@@ -105,5 +114,10 @@ public class MainActivity extends AppCompatActivity implements BeaconReciever, P
         for (Beacon beacon : beacons) {
             beacon.setSelected(false);
         }
+    }
+
+    @Override
+    public void recievePositonInfo(String info) {
+        positionLab.setText(info);
     }
 }

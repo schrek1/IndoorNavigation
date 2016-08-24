@@ -41,6 +41,7 @@ public class MapElement  extends View {
         float[] val = distConvert.cmToPx(x, y);
         pixPosX = val[0];
         pixPosY = val[1];
+        invalidate();
     }
 
     public void setSelected(boolean selected) {

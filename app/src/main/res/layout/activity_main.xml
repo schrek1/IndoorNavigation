@@ -36,12 +36,17 @@
                 android:text="dist --"
                 android:layout_toRightOf="@id/distPlus"
         />
-        <TextView android:id="@+id/label"
+        <TextView android:id="@+id/beaconLab"
                   android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
                   android:layout_alignParentBottom="true"
         />
-
+        <TextView android:id="@+id/positonLab"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_alignParentBottom="true"
+                  android:layout_alignParentRight="true"
+        />
     </RelativeLayout>
 
 
