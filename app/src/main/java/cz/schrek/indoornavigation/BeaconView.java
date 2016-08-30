@@ -1,20 +1,17 @@
 package cz.schrek.indoornavigation;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.view.MotionEvent;
-import android.view.View;
-import android.widget.Toast;
 
 import java.util.Random;
 
 /**
  * Created by ondra on 23. 8. 2016.
  */
-public class Beacon extends MapElement{
+public class BeaconView extends MapElement {
     private static final int TOUCH_AREA = 30;
     private static final float CIRCLE_SIZE = 20;
     private static final float CIRCLE_STROKE = 3;
@@ -23,13 +20,13 @@ public class Beacon extends MapElement{
 
     private BeaconReciever activity;
 
-    private String id; //adresa majaku
+    private String mac; //adresa majaku
     private float distance = 0;
 
-    public Beacon(Context context, String id, float roomPosX, float roomPosY, BeaconReciever activity) {
+    public BeaconView(Context context, String id, float roomPosX, float roomPosY, BeaconReciever activity) {
         super(context, roomPosX, roomPosY);
         this.activity = activity;
-        this.id = id;
+        this.mac = id;
         Random rnd = new Random();
         CIRCLE_COLOR = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
     }
@@ -52,9 +49,16 @@ public class Beacon extends MapElement{
             style.setStyle(Paint.Style.STROKE);
             style.setStrokeWidth(CIRCLE_STROKE);
             canvas.drawCircle(pixPosX, pixPosY, distance + CIRCLE_SIZE, style);
+
+            style = new Paint();
+            style.setColor(CIRCLE_COLOR);
+            style.setStyle(Paint.Style.STROKE);
+            style.setStrokeWidth(CIRCLE_STROKE + 4);
+            canvas.drawCircle(pixPosX, pixPosY, CIRCLE_SIZE, style);
+
         }
 
-        if(selected){
+        if (selected) {
             activity.recieveBeaconInfo(toString());
         }
 
@@ -89,12 +93,16 @@ public class Beacon extends MapElement{
     @Override
     public String toString() {
         return "Beacon{\n" +
-                "id='" + id + '\'' + ", dist= " + distance +
-                "\n, pixPosX=" + pixPosX + " px" +
-                "\n, pixPosY=" + pixPosY + " px" +
-                "\n, roomPosX=" + roomPosX + "cm" +
-                "\n, roomPosY=" + roomPosY + " cm" +
+                "mac='" + mac + '\'' +
+                "\n, dist= " + distance +
+//                "\n, pixPosX=" + pixPosX + " px" +
+//                "\n, pixPosY=" + pixPosY + " px" +
+//                "\n, roomPosX=" + roomPosX + "cm" +
+//                "\n, roomPosY=" + roomPosY + " cm" +
                 '}';
     }
 
+    public String getMac() {
+        return mac;
+    }
 }

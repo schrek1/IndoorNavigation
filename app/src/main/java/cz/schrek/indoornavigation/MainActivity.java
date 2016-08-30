@@ -1,17 +1,24 @@
 package cz.schrek.indoornavigation;
 
 import android.os.Bundle;
+import android.os.RemoteException;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import com.qozix.tileview.TileView;
+import org.altbeacon.beacon.*;
+import org.altbeacon.beacon.powersave.BackgroundPowerSaver;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements BeaconReciever, PositionReceiver {
+public class MainActivity extends AppCompatActivity implements BeaconReciever, PositionReceiver, BeaconConsumer {
+    private static final String BEACON_LAYOUT = "m:2-3=beac,i:4-19,i:20-21,i:22-23,p:24-24,d:25-25";
 
     private Button centerBut;
     private TileView tile;
@@ -20,8 +27,11 @@ public class MainActivity extends AppCompatActivity implements BeaconReciever, P
     private DistanceConverter dc;
     private Button distPlus, distMinus;
 
-    private List<Beacon> beacons = new ArrayList<>();
+    private BeaconContainer bcontainer = new BeaconContainer();
     private PositionIndicator position;
+
+    private BackgroundPowerSaver backgroundPowerSaver;
+    private BeaconManager beaconManager;
 
 
     @Override
@@ -37,6 +47,11 @@ public class MainActivity extends AppCompatActivity implements BeaconReciever, P
         distMinus = (Button) findViewById(R.id.distMinus);
         distPlus = (Button) findViewById(R.id.distPlus);
 
+        backgroundPowerSaver = new BackgroundPowerSaver(this);
+        beaconManager = BeaconManager.getInstanceForApplication(this);
+        beaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout(BEACON_LAYOUT));
+        beaconManager.bind(this);
+
         centerBut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -49,10 +64,10 @@ public class MainActivity extends AppCompatActivity implements BeaconReciever, P
         distMinus.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Beacon selected = null;
-                for (Beacon beacon : beacons) {
-                    if (beacon.isSelected()) {
-                        selected = beacon;
+                BeaconView selected = null;
+                for (BeaconView beaconView : bcontainer.getBeaconViews()) {
+                    if (beaconView.isSelected()) {
+                        selected = beaconView;
                         break;
                     }
                 }
@@ -66,10 +81,10 @@ public class MainActivity extends AppCompatActivity implements BeaconReciever, P
         distPlus.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Beacon selected = null;
-                for (Beacon beacon : beacons) {
-                    if (beacon.isSelected()) {
-                        selected = beacon;
+                BeaconView selected = null;
+                for (BeaconView beaconView : bcontainer.getBeaconViews()) {
+                    if (beaconView.isSelected()) {
+                        selected = beaconView;
                         break;
                     }
                 }
@@ -81,11 +96,11 @@ public class MainActivity extends AppCompatActivity implements BeaconReciever, P
         });
 
 
-        beacons.add(new Beacon(getApplicationContext(), "24:6F", 10, 20, this));
-        beacons.add(new Beacon(getApplicationContext(), "33:45", 10, 390, this));
-        beacons.add(new Beacon(getApplicationContext(), "24:57", 690, 10, this));
-        beacons.add(new Beacon(getApplicationContext(), "34:03", 690, 390, this));
-        beacons.add(new Beacon(getApplicationContext(), "29:03", 350, 390, this));
+        bcontainer.addBeacon(new BeaconView(getApplicationContext(), "0C:F3:EE:09:37:D3", 10, 20, this));
+        bcontainer.addBeacon(new BeaconView(getApplicationContext(), "0C:F3:EE:09:38:17", 10, 390, this));
+        bcontainer.addBeacon(new BeaconView(getApplicationContext(), "0C:F3:EE:09:38:37", 690, 10, this));
+        bcontainer.addBeacon(new BeaconView(getApplicationContext(), "0C:F3:EE:09:38:03", 690, 390, this));
+        bcontainer.addBeacon(new BeaconView(getApplicationContext(), "0C:F3:EE:09:38:02", 350, 390, this));
 
 
         tile.setPadding(0, 0, 0, 0);
@@ -94,8 +109,8 @@ public class MainActivity extends AppCompatActivity implements BeaconReciever, P
         tile.setShouldRenderWhilePanning(true);
 
 
-        for (Beacon beacon : beacons) {
-            tile.addMarker(beacon, 0, 0, null, null);
+        for (BeaconView beaconView : bcontainer.getBeaconViews()) {
+            tile.addMarker(beaconView, 0, 0, null, null);
         }
 
 
@@ -111,13 +126,48 @@ public class MainActivity extends AppCompatActivity implements BeaconReciever, P
 
     @Override
     public void unselectAllBeacon() {
-        for (Beacon beacon : beacons) {
-            beacon.setSelected(false);
+        for (BeaconView beaconView : bcontainer.getBeaconViews()) {
+            beaconView.setSelected(false);
         }
     }
 
     @Override
     public void recievePositonInfo(String info) {
         positionLab.setText(info);
+    }
+
+
+    @Override
+    public void onBeaconServiceConnect() {
+        beaconManager.addRangeNotifier(new RangeNotifier() {
+            @Override
+            public void didRangeBeaconsInRegion(Collection<org.altbeacon.beacon.Beacon> collection, Region region) {
+                if (collection.size() > 0) {
+                    final Beacon bc = collection.iterator().next();
+                    Log.wtf(bc.getBluetoothAddress(), bc.getDistance() + "");
+                    final BeaconView beacon = bcontainer.getBeacon(bc.getBluetoothAddress());
+                    if (beacon != null) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                beacon.setDistance((float) bc.getDistance() * 100);
+                            }
+                        });
+                    }
+                }
+            }
+        });
+
+        try {
+            beaconManager.startRangingBeaconsInRegion(new Region("myRangingUniqueId", null, null, null));
+        } catch (RemoteException e) {
+        }
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        beaconManager.unbind(this);
     }
 }
