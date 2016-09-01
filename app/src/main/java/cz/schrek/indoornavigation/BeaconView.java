@@ -12,6 +12,7 @@ import java.util.Random;
  * Created by ondra on 23. 8. 2016.
  */
 public class BeaconView extends MapElement {
+    private static final int DEFAULT_LIVES = 5;
     private static final int TOUCH_AREA = 30;
     private static final float CIRCLE_SIZE = 20;
     private static final float CIRCLE_STROKE = 3;
@@ -22,6 +23,7 @@ public class BeaconView extends MapElement {
 
     private String mac; //adresa majaku
     private float distance = 0;
+    private int lives = 0;
 
     public BeaconView(Context context, String id, float roomPosX, float roomPosY, BeaconReciever activity) {
         super(context, roomPosX, roomPosY);
@@ -43,7 +45,7 @@ public class BeaconView extends MapElement {
         canvas.drawCircle(pixPosX, pixPosY, CIRCLE_SIZE, style);
 
         // draw radius around beacon
-        if (distance != 0) {
+        if (distance != 0 && lives > 0) {
             style = new Paint();
             style.setColor(CIRCLE_COLOR);
             style.setStyle(Paint.Style.STROKE);
@@ -81,9 +83,11 @@ public class BeaconView extends MapElement {
         return false;
     }
 
-    public void setDistance(float distance) {
+    public void setDistance(float distance, boolean redraw) {
         this.distance = distance;
-        invalidate();
+        if (redraw) {
+            invalidate();
+        }
     }
 
     public float getDistance() {
@@ -99,10 +103,33 @@ public class BeaconView extends MapElement {
 //                "\n, pixPosY=" + pixPosY + " px" +
 //                "\n, roomPosX=" + roomPosX + "cm" +
 //                "\n, roomPosY=" + roomPosY + " cm" +
+                "\n, lives=" + lives +
                 '}';
     }
 
     public String getMac() {
         return mac;
+    }
+
+    public int getLives() {
+        return lives;
+    }
+
+    public void setInitLives() {
+        lives = DEFAULT_LIVES;
+    }
+
+    public void addLive() {
+        if (lives < DEFAULT_LIVES) {
+            this.lives = DEFAULT_LIVES;
+            activity.recieveBeaconInfo(toString());
+        }
+    }
+
+    public void decraseLive() {
+        if (lives > 0) {
+            this.lives--;
+            activity.recieveBeaconInfo(toString());
+        }
     }
 }

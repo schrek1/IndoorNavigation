@@ -1,5 +1,6 @@
 package cz.schrek.indoornavigation;
 
+
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.support.annotation.Nullable;
@@ -12,13 +13,10 @@ import com.qozix.tileview.TileView;
 import org.altbeacon.beacon.*;
 import org.altbeacon.beacon.powersave.BackgroundPowerSaver;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements BeaconReciever, PositionReceiver, BeaconConsumer {
-    private static final String BEACON_LAYOUT = "m:2-3=beac,i:4-19,i:20-21,i:22-23,p:24-24,d:25-25";
+    private static final String BEACON_LAYOUT = "m:2-3=0215,i:4-19,i:20-21,i:22-23,p:24-24";
 
     private Button centerBut;
     private TileView tile;
@@ -27,7 +25,8 @@ public class MainActivity extends AppCompatActivity implements BeaconReciever, P
     private DistanceConverter dc;
     private Button distPlus, distMinus;
 
-    private BeaconContainer bcontainer = new BeaconContainer();
+    private PositionCalculator calculator = new PositionCalculator(this);
+    private BeaconContainer bcontainer = new BeaconContainer(calculator);
     private PositionIndicator position;
 
     private BackgroundPowerSaver backgroundPowerSaver;
@@ -65,7 +64,7 @@ public class MainActivity extends AppCompatActivity implements BeaconReciever, P
             @Override
             public void onClick(View view) {
                 BeaconView selected = null;
-                for (BeaconView beaconView : bcontainer.getBeaconViews()) {
+                for (BeaconView beaconView : bcontainer.getAllBeacons()) {
                     if (beaconView.isSelected()) {
                         selected = beaconView;
                         break;
@@ -73,7 +72,7 @@ public class MainActivity extends AppCompatActivity implements BeaconReciever, P
                 }
                 if (selected != null) {
                     float dist = selected.getDistance() - 10;
-                    selected.setDistance((dist > 0) ? dist : 0);
+                    selected.setDistance((dist > 0) ? dist : 0, true);
                 }
             }
         });
@@ -82,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements BeaconReciever, P
             @Override
             public void onClick(View view) {
                 BeaconView selected = null;
-                for (BeaconView beaconView : bcontainer.getBeaconViews()) {
+                for (BeaconView beaconView : bcontainer.getAllBeacons()) {
                     if (beaconView.isSelected()) {
                         selected = beaconView;
                         break;
@@ -90,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements BeaconReciever, P
                 }
                 if (selected != null) {
                     float dist = selected.getDistance() + 10;
-                    selected.setDistance(dist);
+                    selected.setDistance(dist, true);
                 }
             }
         });
@@ -109,7 +108,7 @@ public class MainActivity extends AppCompatActivity implements BeaconReciever, P
         tile.setShouldRenderWhilePanning(true);
 
 
-        for (BeaconView beaconView : bcontainer.getBeaconViews()) {
+        for (BeaconView beaconView : bcontainer.getAllBeacons()) {
             tile.addMarker(beaconView, 0, 0, null, null);
         }
 
@@ -126,14 +125,15 @@ public class MainActivity extends AppCompatActivity implements BeaconReciever, P
 
     @Override
     public void unselectAllBeacon() {
-        for (BeaconView beaconView : bcontainer.getBeaconViews()) {
+        for (BeaconView beaconView : bcontainer.getAllBeacons()) {
             beaconView.setSelected(false);
         }
     }
 
     @Override
-    public void recievePositonInfo(String info) {
-        positionLab.setText(info);
+    public void recievePositonInfo(float posX, float posY){
+        position.setPixPosX(posX,posY);
+        positionLab.setText(position.toString());
     }
 
 
@@ -150,7 +150,8 @@ public class MainActivity extends AppCompatActivity implements BeaconReciever, P
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                beacon.setDistance((float) bc.getDistance() * 100);
+                                beacon.setDistance((float) bc.getDistance() * 100, false);
+                                bcontainer.updateActiveList(beacon);
                             }
                         });
                     }
@@ -171,3 +172,7 @@ public class MainActivity extends AppCompatActivity implements BeaconReciever, P
         beaconManager.unbind(this);
     }
 }
+
+
+
+

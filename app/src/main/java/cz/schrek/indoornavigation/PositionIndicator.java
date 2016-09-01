@@ -4,10 +4,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.util.Log;
-import android.util.SparseArray;
-import android.view.MotionEvent;
 
 /**
  * Created by ondra on 23. 8. 2016.
@@ -52,7 +48,6 @@ public class PositionIndicator extends MapElement {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         canvas.drawBitmap(pin, pixPosX, pixPosY, null);
-        activity.recievePositonInfo(toString());
     }
 
     @Override
@@ -61,6 +56,7 @@ public class PositionIndicator extends MapElement {
             float[] val = distConvert.cmToPx(x, y);
             pixPosX = val[0] - (pin.getWidth() / 2);
             pixPosY = val[1] - pin.getHeight();
+            invalidate();
         }
     }
 

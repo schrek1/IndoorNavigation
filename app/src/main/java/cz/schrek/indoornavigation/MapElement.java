@@ -11,11 +11,11 @@ public class MapElement  extends View {
     protected DistanceConverter distConvert;
     protected Context context;
 
-    //umisteni majaku v mistnosti (cm)
+    //umisteni elementu v mistnosti (cm)
     protected float roomPosX;
     protected float roomPosY;
 
-    //umisteni na  bitmape (px)
+    //umisteni elementu na  bitmape (px)
     protected float pixPosX;
     protected float pixPosY;
 
@@ -47,6 +47,22 @@ public class MapElement  extends View {
     public void setSelected(boolean selected) {
         this.selected = selected;
         invalidate();
+    }
+
+    public float getPixPosX() {
+        return pixPosX;
+    }
+
+    public float getPixPosY() {
+        return pixPosY;
+    }
+
+    public float getRoomPosX() {
+        return roomPosX;
+    }
+
+    public float getRoomPosY() {
+        return roomPosY;
     }
 
     public boolean isSelected() {
