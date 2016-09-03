@@ -16,7 +16,7 @@ import org.altbeacon.beacon.powersave.BackgroundPowerSaver;
 import java.util.Collection;
 
 public class MainActivity extends AppCompatActivity implements BeaconReciever, PositionReceiver, BeaconConsumer {
-    private static final String BEACON_LAYOUT = "m:2-3=0215,i:4-19,i:20-21,i:22-23,p:24-24";
+    private static final String BEACON_LAYOUT = "m:2-3=beac,i:4-19,i:20-21,i:22-23,p:24-24,d:25-25";
 
     private Button centerBut;
     private TileView tile;
@@ -94,10 +94,14 @@ public class MainActivity extends AppCompatActivity implements BeaconReciever, P
             }
         });
 
+        bcontainer.addBeacon(new BeaconView(getApplicationContext(), "0C:F3:EE:09:3F:3C", 10, 20, this));
+        bcontainer.addBeacon(new BeaconView(getApplicationContext(), "0C:F3:EE:09:3F:E6", 10, 390, this));
+        bcontainer.addBeacon(new BeaconView(getApplicationContext(), "0C:F3:EE:09:3B:23", 690, 10, this));
 
-        bcontainer.addBeacon(new BeaconView(getApplicationContext(), "0C:F3:EE:09:37:D3", 10, 20, this));
-        bcontainer.addBeacon(new BeaconView(getApplicationContext(), "0C:F3:EE:09:38:17", 10, 390, this));
-        bcontainer.addBeacon(new BeaconView(getApplicationContext(), "0C:F3:EE:09:38:37", 690, 10, this));
+
+//        bcontainer.addBeacon(new BeaconView(getApplicationContext(), "0C:F3:EE:09:37:D3", 10, 20, this));
+//        bcontainer.addBeacon(new BeaconView(getApplicationContext(), "0C:F3:EE:09:38:17", 10, 390, this));
+//        bcontainer.addBeacon(new BeaconView(getApplicationContext(), "0C:F3:EE:09:38:37", 690, 10, this));
         bcontainer.addBeacon(new BeaconView(getApplicationContext(), "0C:F3:EE:09:38:03", 690, 390, this));
         bcontainer.addBeacon(new BeaconView(getApplicationContext(), "0C:F3:EE:09:38:02", 350, 390, this));
 
@@ -144,7 +148,7 @@ public class MainActivity extends AppCompatActivity implements BeaconReciever, P
             public void didRangeBeaconsInRegion(Collection<org.altbeacon.beacon.Beacon> collection, Region region) {
                 if (collection.size() > 0) {
                     final Beacon bc = collection.iterator().next();
-                    Log.wtf(bc.getBluetoothAddress(), bc.getDistance() + "");
+                    Log.wtf(bc.getBluetoothAddress(), bc.getDistance() + " "+bc.getRssi()+" "+bc.getTxPower());
                     final BeaconView beacon = bcontainer.getBeacon(bc.getBluetoothAddress());
                     if (beacon != null) {
                         runOnUiThread(new Runnable() {

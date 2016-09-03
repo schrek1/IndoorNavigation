@@ -76,7 +76,7 @@ public class BeaconView extends MapElement {
             if (touched_y > (pixPosY - TOUCH_AREA) && touched_y < (pixPosY + TOUCH_AREA)) {
                 activity.recieveBeaconInfo(toString());
                 activity.unselectAllBeacon();
-                setSelected(true);
+                this.setSelected(true);
                 return true;
             }
         }
@@ -122,14 +122,18 @@ public class BeaconView extends MapElement {
     public void addLive() {
         if (lives < DEFAULT_LIVES) {
             this.lives = DEFAULT_LIVES;
-            activity.recieveBeaconInfo(toString());
+            if (selected) {
+                activity.recieveBeaconInfo(toString());
+            }
         }
     }
 
     public void decraseLive() {
         if (lives > 0) {
             this.lives--;
-            activity.recieveBeaconInfo(toString());
+            if (selected) {
+                activity.recieveBeaconInfo(toString());
+            }
         }
     }
 }

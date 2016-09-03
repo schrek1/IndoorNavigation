@@ -49,7 +49,7 @@ public class PositionCalculator {
 
             activity.recievePositonInfo(x,y);
 
-            Log.wtf("sorted", beacons.toString());
+//            Log.wtf("sorted", beacons.toString());
         }
 
     }
